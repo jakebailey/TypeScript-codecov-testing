@@ -17835,6 +17835,12 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
     function eachUnionContains(unionTypes: UnionType[], type: Type) {
         for (const u of unionTypes) {
             if (!containsType(u.types, type)) {
+                if (type === missingType) {
+                    return containsType(u.types, undefinedType);
+                }
+                if (type === undefinedType) {
+                    return containsType(u.types, missingType);
+                }
                 const primitive = type.flags & TypeFlags.StringLiteral ? stringType :
                     type.flags & (TypeFlags.Enum | TypeFlags.NumberLiteral) ? numberType :
                     type.flags & TypeFlags.BigIntLiteral ? bigintType :
@@ -17914,6 +17920,14 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
             for (const t of u.types) {
                 if (insertType(checked, t)) {
                     if (eachUnionContains(unionTypes, t)) {
+                        // undefinedType/missingType should always come sorted first so we leverage that here
+                        if (t === undefinedType && result.length && result[0] === missingType) {
+                            continue;
+                        }
+                        if (t === missingType && result.length && result[0] === undefinedType) {
+                            result[0] = missingType;
+                            continue;
+                        }
                         insertType(result, t);
                     }
                 }
