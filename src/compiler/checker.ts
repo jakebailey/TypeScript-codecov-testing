@@ -5345,6 +5345,7 @@ export function createTypeChecker(host: TypeCheckerHost): TypeChecker {
         const key = `${name},${debug ?? ""}`;
         if (seenIntrinsicNames.has(key)) {
             Debug.fail(`Duplicate intrinsic type name ${name}${debug ? ` (${debug})` : ""}; you may need to pass a name to createIntrinsicType.`);
+            console.log("This code never executes!");
         }
         seenIntrinsicNames.add(key);
     }
